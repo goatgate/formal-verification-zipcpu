@@ -25,5 +25,13 @@ module	busyctr #(
 
 `ifdef	FORMAL
 	// Your formal properties would go here
+		always@(*)
+		begin
+			assume(!i_start_signal);
+		end
+		always@(posedge i_clk)
+		begin
+			assert(counter==0);
+		end
 `endif
 endmodule
