@@ -72,5 +72,25 @@ module	lfsr_equiv #(
 `ifdef	FORMAL
 	always @(*)
 		assert(!o_bit);
+	// Your formal properties would go here
+		// i_start_signal to remain high unless busy is low at some point
+		reg past_reg;
+		initial past_reg = 1'b0;
+		always@(posedge i_clk)
+		begin
+			past_reg <= 1'b1;
+			//assume(i_start_signal);
+		end
+		always@(posedge i_clk)
+		begin
+			if((past_reg) && ($past(i_ce == 1'b0)))
+				assert(o_bit == $past(o_bit));
+		end
+	// property to check That the outputs of the two LFSR's are identical, and hence the output, o_data, will be forever zero.
+		always@(posedge i_clk)
+		begin
+			if((past_reg) && (fib_bit == gal_bit))
+				assert(o_bit == 'b0);
+		end
 `endif
 endmodule

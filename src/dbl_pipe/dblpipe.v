@@ -44,7 +44,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
-`include "lfsr_fib.v"
+//`include "lfsr_fib.v"
 `default_nettype	none
 //
 module dblpipe(i_clk,
@@ -62,4 +62,26 @@ module dblpipe(i_clk,
 	initial	o_data = 1'b0;
 	always @(posedge i_clk)
 		o_data <= a_data ^ b_data;
+`ifdef	FORMAL
+		// Your formal properties would go here
+		// i_start_signal to remain high unless busy is low at some point
+			reg past_reg;
+			initial past_reg = 1'b0;
+			always@(posedge i_clk)
+			begin
+				past_reg <= 1'b1;
+				//assume(i_start_signal);
+			end
+			always@(posedge i_clk)
+			begin
+				if((past_reg) && ($past(i_ce == 1'b0)))
+					assert(o_data == $past(o_data));
+			end
+		// property to check That the outputs of the two LFSR's are identical, and hence the output, o_data, will be forever zero.
+			always@(posedge i_clk)
+			begin
+				if((past_reg) && (a_data == b_data))
+					assert(o_data == 'b0);
+			end
+	`endif
 endmodule
