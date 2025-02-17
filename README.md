@@ -13,3 +13,6 @@ based on slides in zipcpu:https://zipcpu.com/tutorial/class-verilog.pdf
 ![alt text](image-1.png)
 - assuming counter value to be initially zero
 - asserting the value of counter to be less than 22
+
+## busy counter (past assert)
+

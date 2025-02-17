@@ -25,13 +25,34 @@ module	busyctr #(
 
 `ifdef	FORMAL
 	// Your formal properties would go here
-		always@(*)
+	// i_start_signal to remain high unless busy is low at some point
+		reg past_reg;
+		initial past_reg = 1'b0;
+		always@(posedge i_clk)
 		begin
-			assume(!i_start_signal);
+			past_reg <= 1'b1;
+			//assume(i_start_signal);
 		end
 		always@(posedge i_clk)
 		begin
-			assert(counter==0);
+			if((past_reg) && ($past(counter !=0) && $past(!i_reset)))
+				assume(i_start_signal);
+		end
+	// property to check whether the busy signal is high whenever the counter is non zero
+		always @(*) begin
+			if(counter !=0)
+				assert(o_busy);
+		end
+	// property to check whether the busy signal is low whenever the counter is  zero
+		always @(*) begin
+			if(counter ==0)
+				assert(!o_busy);
+		end
+	// property to check if the counter is non-zero, it should always be counting down unless reset
+		always@(posedge i_clk)
+		begin
+			if((past_reg) && ($past(counter !=0) && $past(!i_reset)))
+				assert(counter == ($past(counter) - 1'b1));
 		end
 `endif
 endmodule
